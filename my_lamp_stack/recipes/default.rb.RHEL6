@@ -6,7 +6,7 @@
 
 # Get packages - Version??
 
-pkgs = ["httpd","php"]
+pkgs = ["httpd","mysql-community-server","php","php-mysql"]
 this_is_motd = "God Bless Ya!"
 
 pkgs.each do |pkg|
@@ -54,4 +54,15 @@ directory "#{ENV['HOME']}/test/tmp" do
     group 'root'
     action :create
     recursive true
+end
+
+# Secure MySql DB by runing script
+cookbook_file "/tmp/set_sqldb" do
+  source "set_db_passwd"
+  mode 0700
+end
+execute "sqldb" do
+   cwd "/tmp"
+   user "root"
+   command "./set_sqldb"
 end
