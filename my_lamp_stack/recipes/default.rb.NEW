@@ -1,0 +1,31 @@
+#
+# Cookbook Name:: my_lamp_stack
+# Recipe:: default
+#
+# Copyright (c) 2015 The Authors, All Rights Reserved.
+
+# Get packages - Version??
+
+template 'apache2.conf' do
+  case node[:platform_family]
+  when 'rhel'
+    path "#{node[:apache][:dir]}/conf/httpd.conf"
+  when 'debian'
+    path "#{node[:apache][:dir]}/apache2.conf"
+  end
+  source 'apache2.conf.erb'
+  owner 'root'
+  group 'root'
+  mode 0644
+  notifies :restart, resources(:service => 'httpd')
+#  notifies :run, resources(:bash => 'logdir_existence_and_restart_apache2')
+end
+
+# Create directory
+directory "#{ENV['HOME']}/test/tmp" do
+    mode 0755
+    owner 'root'
+    group 'root'
+    action :create
+    recursive true
+end
