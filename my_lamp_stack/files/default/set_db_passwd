@@ -1,0 +1,9 @@
+echo "securing MySQL DB..."
+/usr/bin/mysql_secure_installation << EOF
+
+passw0rd
+Y
+Y
+Y
+Y
+EOF

@@ -1,0 +1,4 @@
+# my_lamp_stack
+
+TODO: Enter the cookbook description here.
+
