@@ -10,6 +10,7 @@ template "/etc/init.d/unicorn" do
   group 'root'
   mode '0755'
   action :create
+  variables(:deploy => deploy)
 end
 
 link "/etc/rc3.d/S84unicorn" do
