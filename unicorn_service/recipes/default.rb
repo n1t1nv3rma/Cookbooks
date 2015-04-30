@@ -6,11 +6,12 @@
 
 template "/etc/init.d/unicorn" do
   source "unicorn_service.erb"
-  owner 'root'
-  group 'root'
-  mode '0755'
+  owner "root"
+  group "root"
+  mode "0755"
   action :create
-  variables(:deploy => deploy)
+ #variables( :deployto => "/myvol", :railsenv => "production" )
+  variables(:deploy => deploy, :application => application)
 end
 
 link "/etc/rc3.d/S84unicorn" do
@@ -22,3 +23,4 @@ link "/etc/rc0.d/K16unicorn" do
   action :create
   to "/etc/init.d/unicorn"
 end
+
