@@ -9,7 +9,7 @@ PID=/myvol/shared/pids/unicorn.pid
 
 start() {
 	echo -n "Starting Unicorn Processes..."
-	su - deploy -c "cd <%= @deployto %>/current && /usr/local/bin/bundle exec unicorn_rails --env <%= @railsenv %> --daemonize -c <%= @deployto %>/shared/config/unicorn.conf"
+	su - deploy -c "cd <%= @deploy[:deploy_to] %>/current && /usr/local/bin/bundle exec unicorn_rails --env <%= @deploy[:rails_env] %> --daemonize -c <%= @deploy[:deploy_to] %>/shared/config/unicorn.conf"
 	RETVAL=$?
 	[ $RETVAL -eq 0 ] && echo “Startup successful with pid: `cat $PID`” || echo “Start failed”
 }
@@ -17,7 +17,7 @@ start() {
 stop() {
 	[ "$EUID" != "0" ] && exit 4
         echo -n $"Shutting down $prog: "
-	su - deploy -c "<%= @deployto %>/shared/scripts/unicorn stop"
+	su - deploy -c "<%= @deploy[:deploy_to] %>/shared/scripts/unicorn stop"
 	RETVAL=$?
         [ $RETVAL -eq 0 ] && echo “Stopped Unicorn” || echo “Stop failed”
 }

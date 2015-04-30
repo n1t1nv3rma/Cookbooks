@@ -10,8 +10,7 @@ template "/etc/init.d/unicorn" do
   group "root"
   mode "0755"
   action :create
- #variables( :deployto => "/myvol", :railsenv => "production" )
-  variables(:deploy => deploy, :application => application)
+  variables( :deployto => "/myvol", :railsenv => "production" )
 end
 
 link "/etc/rc3.d/S84unicorn" do
