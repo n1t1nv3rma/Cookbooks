@@ -8,6 +8,11 @@ node[:deploy].each do |application, deploy|
 #    next
 #  end
 
+  if deploy[:environment_variables][:service_port] == "" && deploy[:environment_variables][:container_port] == ""
+    Chef::Log.debug("Skipping deploy::no service or container port defined")
+    next
+  end
+
   opsworks_deploy_dir do
     user deploy[:user]
     group deploy[:group]
