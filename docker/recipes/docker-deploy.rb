@@ -8,10 +8,13 @@ node[:deploy].each do |application, deploy|
 #    next
 #  end
 
-  if deploy[:environment_variables][:service_port] == "" && deploy[:environment_variables][:container_port] == ""
-    Chef::Log.debug("Skipping deploy::no service or container port defined")
+  if deploy[:application_type] != 'customlayer2'
+    Chef::Log.debug("Skipping deploy:: application #{application} as it is not a Custom app")
     next
   end
+
+  if deploy[:environment_variables][:service_port] != "" && deploy[:environment_variables][:container_port] != ""
+    Chef::Log.debug("Proceeding with docker deploy:: for application #{application} ...")
 
   opsworks_deploy_dir do
     user deploy[:user]
@@ -60,6 +63,7 @@ node[:deploy].each do |application, deploy|
     code <<-EOH
       docker run #{dockerenvs} -p #{node[:opsworks][:instance][:private_ip]}:#{deploy[:environment_variables][:service_port]}:#{deploy[:environment_variables][:container_port]} --name #{deploy[:application]} -d #{deploy[:application]}
     EOH
-  end
+   end
+ end
 
 end
