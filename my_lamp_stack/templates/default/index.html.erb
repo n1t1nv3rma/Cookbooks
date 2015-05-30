@@ -6,5 +6,13 @@ This is taking values from the Attribute file
 My machine is running with users: "<%= node['users']['names'] %>"
 <br>
     <h1> Now this is coming from my template file but value is coming from recipie itself: "<%= @motd %>", instead of the Attribute file".
+    
+
+    <h1> <br>
+    Heres is my env vars: <br>
+    <% @myenvars.each do |key, value| %>
+    SetEnv "<%= key %>" "<%= value %>"
+    <% end %>
+  
   </body>
 </html>
