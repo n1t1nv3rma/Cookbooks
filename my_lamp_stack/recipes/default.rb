@@ -38,8 +38,8 @@ template '/var/www/html/index.html' do
    source 'index.html.erb'
    variables(
      :motd => "this is the message mate!",
-     :myenvars => deploy[:environment_variables]
-   )
+     :myenvar => node[:opsworks_java']['tomcat']['port']
+  )
    notifies :restart, resources(:service => 'httpd')
 end
 
