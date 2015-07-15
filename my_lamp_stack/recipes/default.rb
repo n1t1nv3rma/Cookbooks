@@ -38,7 +38,7 @@ template '/var/www/html/index.html' do
    source 'index.html.erb'
    variables(
      :motd => "this is the message mate!",
-     :myenvars => "#{deploy[:environment_variables]}"
+     :myenvars => deploy[:environment_variables]
    )
    notifies :restart, resources(:service => 'httpd')
 end
