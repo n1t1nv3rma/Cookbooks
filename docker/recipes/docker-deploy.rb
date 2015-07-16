@@ -3,8 +3,8 @@ include_recipe 'deploy'
 
 node[:deploy].each do |application, deploy|
 
-  if deploy[:application_type] != 'other' && deploy[:environment_variables][:layer] != "dockerlayer"
-    Chef::Log.info("Skipping deploy:: application #{application} as it is not a Custom app")
+  if !( deploy[:application_type].eql?("other") && deploy[:environment_variables][:layer].eql?("dockerlayer") )
+    Chef::Log.info("Skipping deploy:: application #{application} - not a docker app")
     next
   end
 
