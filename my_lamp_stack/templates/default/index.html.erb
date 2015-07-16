@@ -9,10 +9,8 @@ My machine is running with users: "<%= node['users']['names'] %>"
     
 
     <h1> <br>
-    Heres is my env vars: <br>
-    <% @variables.each do |key, value| %>
-    SetEnv "<%= key %>" "<%= value %>"
-    <% end %>
+    Heres is my Java vars coming from recipie, which inturn referring to OpsWorks node vairables which are listed in the "attribute" dir of recipe attached to Java Layer: <br>
+    jdk = <%= @jdk %> <br> version = <%= @version %> <br>
   
   </body>
 </html>
