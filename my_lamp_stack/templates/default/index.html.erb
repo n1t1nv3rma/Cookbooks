@@ -10,7 +10,7 @@ My machine is running with users: "<%= node['users']['names'] %>"
 
     <h1> <br>
     Heres is my env vars: <br>
-    <% @myenvars.each do |key, value| %>
+    <% @variables.each do |key, value| %>
     SetEnv "<%= key %>" "<%= value %>"
     <% end %>
   
