@@ -1,16 +1,14 @@
 <html>
   <body>
     <h1>hello world! - standard template</h1>
-<h2>
-This is taking values from the Attribute file
-My machine is running with users: "<%= node['users']['names'] %>"
-<br>
-    <h1> Now this is coming from my template file but value is coming from recipie itself: "<%= @motd %>", instead of the Attribute file".
-    
-
-    <h1> <br>
-    Heres is my Java vars coming from recipie, which inturn referring to OpsWorks node vairables which are listed in the "attribute" dir of recipe attached to Java Layer: <br>
-    jvm = <%= @jvm %> <br> version = <%= @version %> <br>
+      <p>
+      This is taking values from the Attribute file
+      My machine is running with users: "<%= node['users']['names'] %>"
+      <br>
+      <p> Now this is coming from my template file but value is coming from recipie itself:<b> "<%= @motd %>" </b>, instead of the Attribute file".
+          
+      <p> Heres is my Java vars coming from recipie, which inturn referring to OpsWorks node vairables which are listed in the "attribute" dir of recipe attached to Java Layer: <br>
+      <b> jvm = <%= @jvm %> <br> version = <%= @version %> <br> </b>
   
-  </body>
+ </body>
 </html>
