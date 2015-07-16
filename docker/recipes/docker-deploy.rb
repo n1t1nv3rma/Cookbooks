@@ -3,7 +3,7 @@ include_recipe 'deploy'
 
 node[:deploy].each do |application, deploy|
 
-  if deploy[:application_type] != 'other' && !deploy[:environment_variables][:layer].include?"custom"
+  if deploy[:application_type] != 'other' && deploy[:environment_variables][:layer] =~ /custom/i
     Chef::Log.debug("Skipping deploy:: application #{application} as it is not a Custom app")
     next
   end
