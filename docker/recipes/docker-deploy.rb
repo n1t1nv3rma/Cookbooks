@@ -3,13 +3,13 @@ include_recipe 'deploy'
 
 node[:deploy].each do |application, deploy|
 
-  if deploy[:application_type] != 'other' && deploy[:environment_variables][:layer] =~ /custom/i
-    Chef::Log.debug("Skipping deploy:: application #{application} as it is not a Custom app")
+  if deploy[:application_type] != 'other' && deploy[:environment_variables][:layer] != "dockerlayer"
+    Chef::Log.info("Skipping deploy:: application #{application} as it is not a Custom app")
     next
   end
 
   if deploy[:environment_variables][:service_port] != "" && deploy[:environment_variables][:container_port] != ""
-    Chef::Log.debug("Proceeding with docker deploy:: for application #{application} ...")
+    Chef::Log.info("Proceeding with docker deploy for application #{application} ...")
 
   opsworks_deploy_dir do
     user deploy[:user]
