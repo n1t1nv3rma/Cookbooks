@@ -38,8 +38,8 @@ template '/var/www/html/index.html' do
    source 'index.html.erb'
    variables(
       :motd => "this is the message mate!",
-      :jvm => node['opsworks_java']['jvm'], 
-      :version => node['opsworks_java']['jvm_version']
+      :jvm => node[opsworks_java][jvm], 
+      :version => node[opsworks_java][jvm_version]
       )
    notifies :restart, resources(:service => 'httpd')
 end
