@@ -6,6 +6,8 @@
 
 # Get packages - Version??
 
+Chef::Log.level = :debug
+
 pkgs = ["httpd","php"]
 this_is_motd = "God Bless Ya!"
 
