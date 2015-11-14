@@ -1,7 +1,7 @@
 #
 # Cookbook Name:: deploy_ecs_server
 # Recipe:: default
-#
+# Depends upon: OpsWorks default 'deploy' recipe
 # Copyright (c) 2015 The Authors, All Rights Reserved.
 
 include_recipe 'deploy'
@@ -23,4 +23,16 @@ node[:deploy].each do |application, deploy|
     deploy_data deploy
     app application
   end
+
+ bash "Deploying ECS Services in #{deploy[:deploy_to]}/current/services on #{node[:opsworks][:instance][:hostname]}" do
+  region = #{node[:opsworks][:instance][:region]}
+  cwd = #{deploy[:deploy_to]}/current/services
+  user "root"
+  code <<-EOH
+    cd #{cwd} && for SER in `ls`; do echo "Deploying Service ${SER}..."; CONT=`grep containerName ${SER} | awk -F'"' '{print $4}'` ; if ( `docker ps | grep -v grep | grep ${CONT} >/dev/null 2>&1` ) ; then echo "Container ${CONT} is running currently, deploying an update to the service..."; echo aws ecs update-service --cli-input-json file://${SER} --region=#{region}; else echo "Not running currently, deploying new service..."; echo aws ecs create-service --cli-input-json file://${SER} --region=#{region}; fi; done 
+  EOH
+  only_if { ::File.exist?("/usr/bin/docker") && !OpsWorks::ShellOut.shellout("docker ps -a").include?("amazon-ecs-agent") }
+ end
+
+
 end
