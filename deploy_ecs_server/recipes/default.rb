@@ -26,15 +26,13 @@ node[:deploy].each do |application, deploy|
 
  bash "Deploying ECS Services in #{deploy[:deploy_to]}/current/services on #{node[:opsworks][:instance][:hostname]}" do
   region = #{node[:opsworks][:instance][:region]}
-  cwd = #{deploy[:deploy_to]}/current/services
+  cwd = "#{deploy[:deploy_to]}/current/services"
   user "root"
   code <<-EOH
-    sleep 10
-    date >> /var/tmp/ow-ecs-run.out
-    cd #{cwd} && for SER in `ls`; do echo "Deploying Service ${SER}..."; CONT=`grep containerName ${SER} | awk -F'"' '{print $4}'` ; if ( `docker ps | grep -v grep | grep ${CONT} >/dev/null 2>&1` ) ; then echo "Container: ${CONT} is running currently, deploying an update to the service..."; aws ecs update-service --cli-input-json file://${SER} --region=#{region}; else echo "Container: ${CONT} is not running currently, deploying new service..."; aws ecs create-service --cli-input-json file://${SER} --region=#{region}; fi; done >> /var/tmp/ow-ecs-run.out 2>&1
+  sleep 10
+  cd "#{cwd}" && for SER in `ls`; do echo "Deploying Service ${SER}..."; CONT=`grep containerName ${SER} | awk -F'"' '{print $4}'` ; if ( `docker ps | grep -v grep | grep ${CONT} >/dev/null 2>&1` ) ; then echo "Container: ${CONT} is running currently, deploying an update to the service..."; aws ecs update-service --cli-input-json file://${SER} --region="#{region}"; else echo "Container: ${CONT} is not running currently, deploying new service..."; aws ecs create-service --cli-input-json file://${SER} --region="#{region}"; fi; touch /var/tmp/test-ow-ecs-run; done
   EOH
   only_if { ::File.exist?("/usr/bin/docker") && !OpsWorks::ShellOut.shellout("docker ps -a").include?("amazon-ecs-agent") }
  end
-
 
 end
