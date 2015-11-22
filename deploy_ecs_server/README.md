@@ -4,9 +4,9 @@
  
 ## Use this recipe to deploy an AWS OpsWorks App into your AWS ECS Cluster
 
-## The OpsWorks App must be in folowing format:
+## The OpsWorks App must be in specific format given below.
 
-# Create a directory called "services" with any number of files listing ECS Services in JSON format
+* Create a directory called "services" and place any number of files listing ECS Services in JSON format in it.
 For Example: OpsWorks App structure will be:
  App:
   - services
@@ -15,10 +15,10 @@ For Example: OpsWorks App structure will be:
     - my-ecs-service-3
      ...
 
-## Create any number of files listing ECS Service under "services" folder.
-- For Example: The content of the "services/my-ecs-service-1" file content must be in following standard JSON format compatible with AWS CLI
+* The content of the "services/my-ecs-service-1" file content must be in following standard JSON format compatible with AWS CLI.
+**Note:** that all values must be valid as per your pre-existing ECS Task Definition.
 
-`
+```
 {
               "cluster": "my-ow-ecs-cluster",
               "serviceName": "ecs-sample-service-elb",
@@ -33,7 +33,7 @@ For Example: OpsWorks App structure will be:
               "desiredCount": 2,
               "role": "ecsServiceRole"
 }
-`
+```
 
-# Deploy this App via OpsWorks on the instances running under ECS Cluster Layer!
+## Deploy this App via OpsWorks on the instances running under ECS Cluster Layer!
 - **To troubleshoot or find out details around the ECS deployments**, refer to the log file "/var/tmp/ow-ecs-service-deploy.log" on the ECS container instance. 
