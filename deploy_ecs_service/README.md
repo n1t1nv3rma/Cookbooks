@@ -1,6 +1,6 @@
 # deploy_ecs_service
 - Developed by: vernitin@ 
-- It is strongly advisable to test this Chef recipe in your test/stg environments before implementing in prod. Author is not responsible for any loss incurred or occurred by using this recipe.
+- **Note:** It is strongly advisable to test this Chef recipe in your test/stg environments before implementing in prod. Author is not responsible for any loss incurred or occurred by using this recipe.
  
 ## Use this Chef Recipe to deploy AWS ECS Service(s) into an existing AWS ECS Cluster, as an AWS OpsWorks App.
 
@@ -20,21 +20,31 @@ For Example: OpsWorks App structure will be:
 
 ```
 {
-              "cluster": "my-ow-ecs-cluster",
-              "serviceName": "ecs-sample-service-elb",
-              "taskDefinition": "my-sample-console:4",
-              "loadBalancers": [
-                  {
-                      "loadBalancerName": "my-ow-ecs-elb",
-                      "containerName": "simple-app",
-                      "containerPort": 80
-                  }
-              ],
-              "desiredCount": 2,
-              "role": "ecsServiceRole"
+   "cluster": "my-ow-ecs-cluster",
+   "serviceName": "ecs-sample-service-elb",
+   "taskDefinition": "my-sample-console:5",
+   "loadBalancers": [
+       {
+         "loadBalancerName": "my-ow-ecs-elb",
+         "containerName": "simple-app",
+         "containerPort": 80
+       }
+     ],
+   "desiredCount": 2
+}
+```
+
+OR
+
+```
+{
+   "cluster": "my-ow-ecs-cluster",
+   "serviceName": "ecs-sample-service-non-elb",
+   "taskDefinition": "my-2nd-task-def:6",
+   "desiredCount": 1
 }
 ```
 
 ## Deploy this App via OpsWorks on the instances running under ECS Cluster Layer!
-- **To troubleshoot or find out details around the ECS deployments**, refer to the log file "/var/tmp/ow-ecs-service-deploy.log" on the ECS container instance. 
+- **To troubleshoot or find out details around the ECS deployments**, refer to the log file "/var/tmp/ecs-service-deploy.log" on the ECS container instance. 
 
