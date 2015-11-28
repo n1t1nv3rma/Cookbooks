@@ -36,8 +36,6 @@ node[:deploy].each do |application, deploy|
   logfile = "/var/tmp/ow-ecs-service-deploy.log"
   user "root"
   code <<-EOH
-# To enable debug uncomment following line
-#set -x
 echo "===========NEW RUN================" >> "#{logfile}"
 
 # Functions
@@ -64,6 +62,8 @@ wait_for_steady() {
    echo "`date`: Waiting for service to reach a steady state after deploying new service..."; sleep 5;
  done
 }
+# To enable debug uncomment following line
+ set -x
 # Main goes here
  cd "#{cwd}" && for SER_FILE in `ls`; 
  do 
@@ -143,8 +143,8 @@ wait_for_steady() {
   fi
   rm -f /var/tmp/ecs-services.tmp /var/tmp/ecs-tasks.tmp /var/tmp/ecs-task-def.tmp
   echo "----------- Done with: ${SER_FILE} -------------"
- done | tee -a "#{logfile}" 2>&1
- echo `date`: All done! Detailed LOGS are in "#{logfile}".
+ done >> "#{logfile}" 2>&1
+ echo `date`: All done! Detailed LOGS are in "#{logfile}". >> "#{logfile}"
 EOH
   only_if { ::File.exist?("/usr/bin/aws") }
  end
