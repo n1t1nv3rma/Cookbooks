@@ -2,7 +2,11 @@
 - Developed by: vernitin@ 
 - **Note:** It is strongly advisable to test this Chef recipe in your test/stg environments before implementing in prod. Author is not responsible for any loss incurred or occurred by using this recipe.
  
-## Use this Chef Recipe to deploy AWS ECS Service(s) into an existing AWS ECS Cluster, as an AWS OpsWorks App.
+## Use this sample Chef Recipe to :
+- Deploy multiple new ECS Services into an existing ECS Cluster
+- Perform rolling updates to the multiple existing ECS Services in an existing ECS Cluster
+via an OpsWorks App
+
 
 ## The OpsWorks App must be in specific format given below.
 
@@ -15,7 +19,7 @@ For Example: OpsWorks App structure will be:
     - my-ecs-service-3
      ...
 
-* The content of the "services/my-ecs-service-1" file content must be in following standard JSON format compatible with AWS CLI.
+* The content of the "services/<service>" file must be in following standard JSON format compatible with AWS CLI.
 **Note:** that all values must be valid as per your pre-existing ECS Task Definition.
 
 ```
@@ -34,7 +38,7 @@ For Example: OpsWorks App structure will be:
 }
 ```
 
-OR
+OR for Non-ELB service:
 
 ```
 {
@@ -46,5 +50,5 @@ OR
 ```
 
 ## Deploy this App via OpsWorks on the instances running under ECS Cluster Layer!
-- **To troubleshoot or find out details around the ECS deployments**, refer to the log file "/var/tmp/ecs-service-deploy.log" on the ECS container instance. 
+- **To troubleshoot or find out details around the ECS deployments**, refer to the Recipe and log file "/var/tmp/ecs-service-deploy.log" on the ECS container instance. 
 

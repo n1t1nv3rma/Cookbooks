@@ -63,7 +63,7 @@ wait_for_steady() {
  done
 }
 # To enable debug uncomment following line
- set -x
+#set -x
 # Main goes here
  cd "#{cwd}" && for SER_FILE in `ls`; 
  do 
