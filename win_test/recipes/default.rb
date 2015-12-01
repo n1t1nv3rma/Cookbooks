@@ -1,3 +1,12 @@
+Chef::Log.level = :debug
+
+Chef::Log.info("******Creating a data directory.******")
+
+directory 'C:\data' do
+  rights :full_control, 'WORKGROUP\vernitin'
+  inherits false
+  action :create
+end
  
 layer = search(:aws_opsworks_instance, "layer_ids:*").first
 
