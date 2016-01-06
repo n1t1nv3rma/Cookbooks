@@ -12,7 +12,7 @@ layer = search(:aws_opsworks_instance, "layer_ids:*").first
 
 Chef::Log.info("********** '#{layer}'**********") 
 
-Chef::Log.info("Node OW Layer: '#{node[:opsworks][:layers]}' ")
+#Chef::Log.info("Node OW Layer: '#{node[:opsworks][:layers]}' ")
 
 layers = search(:aws_opsworks_layer)
 
