@@ -13,13 +13,14 @@ via an OpsWorks App
 * Create a directory called "services" and place any number of files listing ECS Services in JSON format in it.
 For Example: OpsWorks App structure will be:
  App:
-  - services
-    - my-ecs-service-1
-    - my-ecs-service-2
-    - my-ecs-service-3
+  + services
+    + my-ecs-service-1
+    + my-ecs-service-2
+    + my-ecs-service-3
      ...
 
 * The content of the "services/<service>" file must be in following standard JSON format compatible with AWS CLI.
+Ref: http://docs.aws.amazon.com/AmazonECS/latest/developerguide/service_definition_paramters.html 
 **Note:** that all values must be valid as per your pre-existing ECS Task Definition.
 
 ```
@@ -34,7 +35,11 @@ For Example: OpsWorks App structure will be:
          "containerPort": 80
        }
      ],
-   "desiredCount": 2
+   "desiredCount": 2,
+   "deploymentConfiguration": {
+        "maximumPercent": 200,
+        "minimumHealthyPercent": 50
+    }
 }
 ```
 
@@ -45,7 +50,11 @@ OR for Non-ELB service:
    "cluster": "my-ow-ecs-cluster",
    "serviceName": "ecs-sample-service-non-elb",
    "taskDefinition": "my-2nd-task-def:6",
-   "desiredCount": 1
+   "desiredCount": 1,
+   "deploymentConfiguration": {
+        "maximumPercent": 200,
+        "minimumHealthyPercent": 100
+    }
 }
 ```
 
