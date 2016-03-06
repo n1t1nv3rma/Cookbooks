@@ -1,7 +1,6 @@
 #
 # Cookbook Name:: deploy_ecs_server
 # Recipe:: default
-# Depends upon: OpsWorks default 'deploy' recipe
 #
 # Summary: 
 # 	- Use this recipe to perform ECS Service deployment or rolling updates across the ECS cluster 
@@ -10,51 +9,36 @@
 #       - Author is not responsible for any loss incurred or occurred by using this recipe.
 # 	- Refer to README.md for more info.
 
-include_recipe 'deploy'
+search("aws_opsworks_app").each do |app|
+  Chef::Log.info("********** The app's short name is '#{app['shortname']}' **********")
+  Chef::Log.info("********** The app's URL is '#{app['app_source']['url']}' **********")
 
-node[:deploy].each do |application, deploy|
- 
-  if !( deploy[:application_type].eql?("other") && deploy[:environment_variables][:DEPLOY_ECS].eql?("true") )
-    Chef::Log.info("Skipping deploy:: application #{application} - not a ECS app")
+  if !( app[:environment_variables][:DEPLOY_ECS].eql?("true") )
+    Chef::Log.info("Skipping deploy:: application #{app['name']} - does not have var DEPLOY_ECS to true")
     next
-  end
+  else 
+   app_path = "/srv/#{app['shortname']}"
+    
+   application app_path do
+     environment.update(app["environment"])
 
-  opsworks_deploy_dir do
-    user deploy[:user]
-    group deploy[:group]
-    path deploy[:deploy_to]
-  end
+    git app_path do
+     repository app["app_source"]["url"]
+     revision app["app_source"]["revision"]
+    end
 
-  opsworks_deploy do
-    deploy_data deploy
-    app application
-  end
-
- bash "Deploying ECS Services in the #{deploy[:deploy_to]}/current/services via #{node[:opsworks][:instance][:hostname]}" do
+ bash "Deploying ECS Services in the #{app_path}/services via #{node[:opsworks][:instance][:hostname]}" do
   region = "#{node[:opsworks][:instance][:region]}"
-  cwd = "#{deploy[:deploy_to]}/current/services"
+  cwd = "#{app_path}/services"
   logfile = "/var/tmp/ow-ecs-service-deploy.log"
   user "root"
   code <<-EOH
 echo "===========NEW RUN================" >> "#{logfile}"
 
 # Functions
-update_Task_Def() {
-  echo "`date`: Updating Task Def now..."
-  aws ecs update-service --cluster "${CLUST}" --service "${SVC}" --task-definition "${NEW_TDEF}" --region="#{region}" >> "#{logfile}"
-}
-update_Count_toDesired() {
-  echo "`date`: Updating Desired Count now..."
-  aws ecs update-service --cluster "${CLUST}" --service "${SVC}" --desired-count ${DCOUNT} --region="#{region}" >> "#{logfile}"
-}
 update_Task_Def_and_Count() {
   echo "`date`: Updating both Task Def and Desired Count now..."
   aws ecs update-service --cluster "${CLUST}" --service "${SVC}" --task-definition "${NEW_TDEF}"  --desired-count ${DCOUNT} --region="#{region}" >> "#{logfile}"
-}
-temp_reduce_Count() {
-  echo "`date`: Temporarily reducing the Count now..."
-  TCOUNT=`expr $TASKS - 1`
-  aws ecs update-service --cluster "${CLUST}" --service "${SVC}" --desired-count ${TCOUNT} --region="#{region}" >> "#{logfile}"
 }
 wait_for_steady() {
  until `aws ecs describe-services --cluster "${CLUST}" --service "${SVC}" --region="#{region}" | grep message | head -1 | grep "reached a steady state" >/dev/null 2>&1`
@@ -63,7 +47,7 @@ wait_for_steady() {
  done
 }
 # To enable debug uncomment following line
-#set -x
+set -x
 # Main goes here
  cd "#{cwd}" && for SER_FILE in `ls`; 
  do 
@@ -83,54 +67,10 @@ wait_for_steady() {
   if [ "${SVC_RUNNING}" != "" ]
     then 
       echo "`date`: Service: ${SVC} already existing, updating it..."; 
-      echo "`date`: Current issues: check for the need to prepare for rolling update!"
-      # Get current tasks
-      aws ecs list-tasks --output text --cluster  ${CLUST} --service ${SVC} --region="#{region}" > /var/tmp/ecs-tasks.tmp
-      TASKS=`cat /var/tmp/ecs-tasks.tmp | grep arn | wc -l`
-      TOTAL_TASKS=`expr $DCOUNT + $TASKS`
-      INSTANCE=`aws ecs list-container-instances --cluster ${CLUST} --region="#{region}" | grep arn | wc -l`
-
-      if [ $TOTAL_TASKS -le $INSTANCE ]
-        then
-          echo "`date`: No need to prepare, updating the Service ${SVC} now..."
-          update_Task_Def_and_Count;
-        else
-          echo "`date`: Preparing for rolling update of the Service ${SVC} now..."
-          if [ $TASKS -lt $DCOUNT ]
-            then
-              echo "`date`: Tasks are less than Desired count..."
-              update_Task_Def;
-              echo "`date`: Waiting for service to reach a steady state..."
-              sleep 60;
-              wait_for_steady;
-              update_Count_toDesired;
-            elif [ $TASKS -eq $DCOUNT ]
-            then
-              echo "`date`: Tasks are equal to Desired count! So checking existing Task Def now..."
-              TASK=`cat /var/tmp/ecs-tasks.tmp | grep arn | cut -d'/' -f2 | head -1`
-              aws ecs describe-tasks --cluster ${CLUST} --region="#{region}" --tasks ${TASK} > /var/tmp/ecs-task-def.tmp
-              CURR_TASK_DEF=`cat /var/tmp/ecs-task-def.tmp  | grep task-definition  | cut -d'/' -f2 | sed -e 's/"//' -e 's/,//'`
-              CURR_TASK_DEF=`expr $CURR_TASK_DEF`
-              if [ "${NEW_TDEF}" != "${CURR_TASK_DEF}" ]
-                then
-                  temp_reduce_Count;
-                  update_Task_Def;
-                  echo "`date`: Waiting for service to reach a steady state..."
-                  sleep 60;
-                  wait_for_steady;
-                  update_Count_toDesired;
-                else
-                  echo "`date`: Current Task Def and Desired Count are same! SKIPPING ${SVC}..."
-              fi
-            else
-              echo "Tasks are more than Desired count..."
-              update_Count_toDesired;
-              echo "`date`: Waiting for service to reach a steady state..."
-              sleep 60;
-              wait_for_steady;
-              update_Task_Def;
-          fi
-       fi
+      update_Task_Def_and_Count;
+      sleep 60;
+      wait_for_steady;
+      echo "`date`: Service: ${SVC} updated with new count ${DCOUNT} and new task def ${NEW_TDEF}..."
      elif [ $LIST_SVC_STAT -eq 0 ]
       then
         echo "`date`: Service: ${SVC} is not running currently, deploying new service..."
@@ -141,7 +81,7 @@ wait_for_steady() {
   else 
     echo "Error: Problem getting required values from the ECS Service file: ${SER_FILE} !"
   fi
-  rm -f /var/tmp/ecs-services.tmp /var/tmp/ecs-tasks.tmp /var/tmp/ecs-task-def.tmp
+  rm -f /var/tmp/ecs-services.tmp
   echo "----------- Done with: ${SER_FILE} -------------"
  done >> "#{logfile}" 2>&1
  echo `date`: All done! Detailed LOGS are in "#{logfile}". >> "#{logfile}"
@@ -149,4 +89,5 @@ EOH
   only_if { ::File.exist?("/usr/bin/aws") }
  end
 
+  end
 end
